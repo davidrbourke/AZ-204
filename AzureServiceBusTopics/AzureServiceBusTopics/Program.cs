@@ -12,7 +12,7 @@ namespace AzureServiceBusTopics
 
         static async Task Main(string[] args)
         {
-            var connStr = "Endpoint=sb://davidrbourkesb.servicebus.windows.net/;SharedAccessKeyName=Az204;SharedAccessKey=NKExCrL36Qi0YZouSgEyYxtB9GNY1dtAK7oPEVomnsk=";
+            var connStr = "";
             var topicName = "demotopic1";
             //var subscriptName "demosubscription1";
 
