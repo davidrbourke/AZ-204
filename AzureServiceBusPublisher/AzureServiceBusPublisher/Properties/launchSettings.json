@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AzureServiceBusPublisher": {
+      "commandName": "Project",
+      "commandLineArgs": "\"S\""
+    }
+  }
+}

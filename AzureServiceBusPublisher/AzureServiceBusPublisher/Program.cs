@@ -14,7 +14,7 @@ namespace AzureServiceBusPublisher
         {
             Console.WriteLine("Service Bus Publisher");
 
-            if (args.Length < 1 || args[0] != "P" || args[0] != "S")
+            if (args.Length < 1 && args[0] != "P" && args[0] != "S")
             {
                 Console.WriteLine("Provide a parameter: P (Publisher), S (Subscriber");
                 return;
@@ -26,7 +26,7 @@ namespace AzureServiceBusPublisher
             // Once the connection string is available on the policy in Azure, copy it here and remove the entity part at the end.
             // Aslo set the queue name in queueEntityName.
             var connStr = "";
-            var queueEntityName = "";
+            var queueEntityName = "demoqueue1";
             queueClient = new QueueClient(connStr, queueEntityName);
 
             switch (args[0])
