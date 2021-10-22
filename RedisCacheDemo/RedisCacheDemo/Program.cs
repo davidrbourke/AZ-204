@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using ServiceStack.Redis;
+using StackExchange.Redis;
 using System;
 using System.Text.Json;
 
@@ -6,9 +7,11 @@ namespace RedisCacheDemo
 {
     class Program
     {
+        private static string connectionString = "<connstringhere>";
+
         private static Lazy<ConnectionMultiplexer> _lazyConnection = new Lazy<ConnectionMultiplexer>(() =>
         {
-            string connection = "<insert key string from azure>";
+            string connection = connectionString;
             return ConnectionMultiplexer.Connect(connection);
         });
 
@@ -24,24 +27,52 @@ namespace RedisCacheDemo
         {
             Console.WriteLine("Azure redis cache demo");
 
-            IDatabase cache = AppRedisConnection.GetDatabase();
+            CommandsInATransaction();
 
-            var customer = new Customer
+            IDatabase cache = AppRedisConnection.GetDatabase();
+            
+            //var customer = new Customer
+            //{
+            //    Id = 1,
+            //    Name = "David",
+            //    City = "Chicago"
+            //};
+
+            //// Set in cache
+            //cache.StringSet($"Customer_Id{customer.Id}", JsonSerializer.Serialize(customer), TimeSpan.FromMinutes(60));
+
+            //// Get from cache
+            //Customer loadedCustomer = JsonSerializer.Deserialize<Customer>(cache.StringGet($"Customer_Id{customer.Id}"));
+
+            //Console.WriteLine(loadedCustomer.Id);
+            //Console.WriteLine(loadedCustomer.Name);
+            //Console.WriteLine(loadedCustomer.City);
+        }
+
+        private static void CommandsInATransaction()
+        {
+            var customerA = new Customer
             {
-                Id = 1,
-                Name = "David",
-                City = "Chicago"
+                Id = 2,
+                Name = "Smith",
+                City = "Sydney"
+            };
+            var customerB = new Customer
+            {
+                Id = 3,
+                Name = "O'Neil",
+                City = "Belfast"
             };
 
-            // Set in cache
-            cache.StringSet($"Customer_Id{customer.Id}", JsonSerializer.Serialize(customer), TimeSpan.FromMinutes(60));
+            using var redisclient = new RedisClient(connectionString);
+            using var transaction = redisclient.CreateTransaction();
 
-            // Get from cache
-            Customer loadedCustomer = JsonSerializer.Deserialize<Customer>(cache.StringGet($"Customer_Id{customer.Id}"));
+            transaction.QueueCommand(c => c.Set($"Customer_Id{customerA.Id}", JsonSerializer.Serialize(customerA), TimeSpan.FromMinutes(30)));
+            transaction.QueueCommand(c => c.Set($"Customer_Id{customerB.Id}", JsonSerializer.Serialize(customerB), TimeSpan.FromMinutes(30)));
 
-            Console.WriteLine(loadedCustomer.Id);
-            Console.WriteLine(loadedCustomer.Name);
-            Console.WriteLine(loadedCustomer.City);
+            var transactionResult = transaction.Commit();
+
+            Console.WriteLine($"Written to cache? {transactionResult}");
         }
     }
 }
