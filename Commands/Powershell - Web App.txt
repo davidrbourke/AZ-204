@@ -1,0 +1,14 @@
+* Azure Powershell Web App *
+
+* 3 - step process *
+$webappname = "mywebappname$(Get-Random)"
+$rgname = "rg-mywebapp"
+$location = "uksouth"
+
+New-AzResourceGroup -Name $rgname -Location $location
+
+New-AzAppServicePlan -Name $webappname -Location$location -ResourceGroupName $rgname -Tier S1
+
+New-AzWebApp -Name $webappname -Location $location -AppServicePlan $webappname -ResourceGroupName $rgname
+
+

@@ -1,0 +1,26 @@
+Connect-AzAccount
+
+// List subscription
+Get-AzSubscription
+
+// Get specific subscription
+$entSub = Get-AzSubscription -SubscriptionName "Visual Studio Enterprise Subscription"
+
+// Set the current subscription to use
+Set-AzContext -Subscription $entSub.Id
+
+// Show the currently in use subscription
+Get-AzContext
+
+$resourceGroup = "rg-az204-rc2"
+$location = "UKSouth"
+
+New-AzResourceGroup -Name $resourceGroup -Location $location
+
+New-AzRedisCache -ResourceGroupName $resourceGroup -Location $location -Name "davidrc2" -Sku Basic -Size C0
+
+
+
+// Remove the redis cache
+Remove-AzRedisCache -ResourceGroupName $resourceGroup -Name "davidrc2"
+

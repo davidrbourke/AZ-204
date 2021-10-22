@@ -1,0 +1,11 @@
+-- Create Resource Group
+az group create -n rg-az204-rc -l uksouth
+
+-- Create Cache
+az redis create --location uksouth --name davidrc1 --resource-group rg-az204-rc --sku Basic --vm-size b0
+
+-- List access keys
+az redis list-keys --resource-group rg-az204-rc --name davidrc1
+
+-- Remove the cache
+az redis delete --resource-group rg-az204-rc --name davidrc1

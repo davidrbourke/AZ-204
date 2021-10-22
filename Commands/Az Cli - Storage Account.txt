@@ -1,0 +1,12 @@
+Storage Account CLI
+
+az storage account create --name davidsa204 \
+--resource-group learn-c2f376fe-8a16-43a5-8dc7-966ec91f4b38 \
+--location westeurope --sku Standard_LRS
+
+az storage account show-connection-string \
+--resource-group learn-c2f376fe-8a16-43a5-8dc7-966ec91f4b38 \
+--query connectionString --name davidsa204
+
+az storage container list --account-name davidsa204
+

@@ -1,0 +1,22 @@
+Get-InstalledModule -Name "Az"
+Connect-AzAccount
+
+$resourceGroup = "<resource-group>"
+$location = "<location">
+
+-- Create a resource group
+New-AzResourceGroup -Name $resourceGroup -Location $location
+
+-- Get a list of supported regions
+Get-AzLocation | select Location
+
+-- Create a storage account
+New-AzStoreAccount -ResourceGroupName $resourceGroup `
+-Name <account-name> `
+-Location $location `
+-SkuName Standard_RAGRS `
+-Kind StorageV2
+
+--Delete a storage account
+Remove-AzStorageAccount -Name <storage-account> -ResourceGroup <resource-group>
+

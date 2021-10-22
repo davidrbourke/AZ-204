@@ -1,0 +1,11 @@
+az login
+
+az account list
+az account list --all (to include disabled accounts)
+
+az account list-locations --output table
+
+az account set --subscription <subscriptionid>
+
+az --help
+az vm --help
