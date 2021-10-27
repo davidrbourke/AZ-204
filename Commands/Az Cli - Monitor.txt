@@ -1,0 +1,9 @@
+-- Create log analytics workspace - for storing logs
+
+az monitor log-analytics workspace create -g rg-az-204 --workspace-name log-site-az-204
+
+-- Create application insights component (will prompt to install 
+az monitor app-insights component create --app appi-az204 --location uksouth --kind web --resource-group rg-az-204 --retention-time 120 --workspace log-site-az-204
+
+(retention-time can only be set when not connected to a Log Analytics Workspace)
+

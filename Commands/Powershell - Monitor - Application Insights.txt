@@ -1,0 +1,9 @@
+New-AzApplicationInsights -ResourceGroupName <resource group> -Name <resource name> -location eastus
+
+-- Get the key
+Get-AzApplicationInsights -ResourceGroupName Fabrikam -Name FabrikamProd | Format-List
+
+-- Set retention policy
+$Resource = Get-AzResource -ResourceType Microsoft.Insights/components -ResourceGroupName MyResourceGroupName -ResourceName MyResourceName
+$Resource.Properties.RetentionInDays = 365
+$Resource | Set-AzResource -Force
