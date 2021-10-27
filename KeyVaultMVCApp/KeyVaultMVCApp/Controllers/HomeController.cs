@@ -22,7 +22,7 @@ namespace KeyVaultMVCApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var keyVaultUri = "https://az204keyvaultdrb.vault.azure.net";
+            var keyVaultUri = "";
             SecretClient client = new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential());
 
             var secret = await client.GetSecretAsync("SqlPwd");
