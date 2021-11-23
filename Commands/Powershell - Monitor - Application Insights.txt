@@ -7,3 +7,4 @@ Get-AzApplicationInsights -ResourceGroupName Fabrikam -Name FabrikamProd | Forma
 $Resource = Get-AzResource -ResourceType Microsoft.Insights/components -ResourceGroupName MyResourceGroupName -ResourceName MyResourceName
 $Resource.Properties.RetentionInDays = 365
 $Resource | Set-AzResource -Force
+
