@@ -2,23 +2,27 @@
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Consumer;
 using Azure.Messaging.EventHubs.Producer;
-
+using Azure.Storage.Blobs;
+using System.Text;
 
 var client = new ClientManager();
 
 //client.SendMessagesToEventHub().Wait();
-client.RetrieveMessagesFromEventHub().Wait();
+//client.RetrieveMessagesFromEventHub().Wait();
+client.ConsumerWithCheckpoint().Wait();
 
 public class ClientManager
 {
-    private readonly string _connectionString = "";
-    private readonly string _eventHubName = "event-hub-1";
+    private readonly string _eventHubConnStr = "";
+    private readonly string _eventHubName = "";
+    private readonly string _storageAccountConnStr = "";
+    private readonly string _containerName = "";
 
     public async Task SendMessagesToEventHub()
     {
         Console.WriteLine("Start writing events");
 
-        var producer = new EventHubProducerClient(_connectionString, _eventHubName);
+        var producer = new EventHubProducerClient(_eventHubConnStr, _eventHubName);
 
         try
         {
@@ -27,7 +31,7 @@ public class ClientManager
 
             for (var i = 0; i < 10; i++)
             {
-                var eventData = new EventData($"Event #{i}");
+                var eventData = new EventData($"Event #{i} {DateTime.UtcNow}");
 
                 if (!eventBatch.TryAdd(eventData))
                 {
@@ -50,7 +54,7 @@ public class ClientManager
     {
         Console.WriteLine("Start writing events");
 
-        var producer = new EventHubProducerClient(_connectionString, _eventHubName);
+        var producer = new EventHubProducerClient(_eventHubConnStr, _eventHubName);
 
         try
         {
@@ -85,7 +89,7 @@ public class ClientManager
     {
         var consumer = new EventHubConsumerClient(
             EventHubConsumerClient.DefaultConsumerGroupName,
-            _connectionString,
+            _eventHubConnStr,
             _eventHubName);
 
         try
@@ -121,4 +125,36 @@ public class ClientManager
             await consumer.CloseAsync();
         }
     }
+
+    public async Task ConsumerWithCheckpoint()
+    {
+        var consumerGroup = EventHubConsumerClient.DefaultConsumerGroupName;
+        var storageClient = new BlobContainerClient(_storageAccountConnStr, _containerName);
+        var processor = new EventProcessorClient(storageClient, consumerGroup, _eventHubConnStr, _eventHubName);
+
+        processor.ProcessEventAsync += Processor_ProcessEventAsync;
+        processor.ProcessErrorAsync += Processor_ProcessErrorAsync;
+        
+        await processor.StartProcessingAsync();
+
+        await Task.Delay(TimeSpan.FromSeconds(30));
+
+        await processor.StopProcessingAsync();
+    }
+
+    private async Task Processor_ProcessEventAsync(Azure.Messaging.EventHubs.Processor.ProcessEventArgs arg)
+    {
+        Console.WriteLine("\tReceived event: {0}", Encoding.UTF8.GetString(arg.Data.Body.ToArray()));
+
+        // Update the checkpoint in Azure Storage to only read new events on next run
+        await arg.UpdateCheckpointAsync(arg.CancellationToken);
+    }
+
+    private Task Processor_ProcessErrorAsync(Azure.Messaging.EventHubs.Processor.ProcessErrorEventArgs arg)
+    {
+        Console.WriteLine($"\tPartition '{ arg.PartitionId}': an unhandled exception was encountered. This was not expected to happen.");
+        Console.WriteLine(arg.Exception.Message);
+        return Task.CompletedTask;
+    }
+
 }
