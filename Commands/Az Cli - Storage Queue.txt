@@ -1,0 +1,22 @@
+Storage Account CLI
+
+az storage queue create -- name mysamplequeue
+
+az storage queue delete --name mysamplequeue
+
+# Peak - does not remove message from queue
+# --num-messages is optional, 32 is max
+az storage message peek --queue-name mysamplequeue --num-messages 32
+
+
+# Empty the entire queue
+az storage message clear --queue-name mysamplequeue
+
+# Get top message
+# This hides the message, when the visibility time out expires the message returns to the queue, it must be deleted.
+az storage message get --queue-name testqueue
+
+# Delete a message
+# Need the id and pop-receipt of the message - available in the GET response
+az storage message delete --id <id> --pop-receipt <pop receipt> --queue-name testqueue
+
