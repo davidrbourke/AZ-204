@@ -1,0 +1,53 @@
+*** Queue ***
+
+# create a queue
+az servicebus queue create --namespace-name <name> --name <queuename> --resource-group <resourcegroupname>
+
+# delete a queue
+az servicebus queue delete --namespace-name <name> --name <queuename>
+
+
+*** Topic ***
+# create a topic
+az servicebus topic create --namespace-name <name> --name <topicname> --resource-group <resourcegroupname>
+
+# delete a topic
+az servicebus topic delete --namespace-name <name> --name <topicname>
+
+# create a subscription
+az servicebus topic subscription create --namespace-name <name> --name <subscriptionname> --topic-name <topicname>
+
+
+*** Full Topic Example ***
+# create resource group
+az group create --name az204sbt --location UKSouth
+
+# create service bus namespace
+az servicebus namespace create --name az204sbtdemo --resource-group az204sbt --location UKSouth --sku Standard
+
+# create topic
+az servicebus topic create --name dbk-topic-demo --resource-group az204sbt --namespace-name az204sbtdemo
+
+# create 1st subscription
+az servicebus topic subscription create --name sub-a --namespace-name az204sbtdemo --resource-group az204sbt --topic-name dbk-topic-demo
+
+# create 2nd subscription
+az servicebus topic subscription create --name sub-b --namespace-name az204sbtdemo --resource-group az204sbt --topic-name dbk-topic-demo
+
+# add sql filter to 1st subscription
+az servicebus topic subscription rule create --name filter-msgprop-1 --namespace-name az204sbtdemo --resource-group az204sbt --subscription-name sub-a --topic-name dbk-topic-demo --filter-sql-expression MsgProp=1
+
+# create shared access policy for publisher
+az servicebus topic authorization-rule create --name demo-publisher --namespace-name az204sbtdemo --resource-group az204sbt --topic-name dbk-topic-demo --rights Send
+
+# create shared access policy for receivers
+az servicebus topic authorization-rule create --name demo-subscriber --namespace-name az204sbtdemo --resource-group az204sbt --topic-name dbk-topic-demo --rights Listen
+
+# list the authorisation
+az servicebus topic authorization-rule list --namespace-name az204sbtdemo --resource-group az204sbt --topic-name dbk-topic-demo
+
+# get the connection string for the publisher
+az servicebus topic authorization-rule keys list --namespace-name az204sbtdemo --resource-group az204sbt --topic-name dbk-topic-demo --name demo-publisher
+
+# get the connection string for the receiver
+az servicebus topic authorization-rule keys list --namespace-name az204sbtdemo --resource-group az204sbt --topic-name dbk-topic-demo --name demo-subscriber
